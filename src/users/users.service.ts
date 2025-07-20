@@ -41,7 +41,7 @@ export class UsersService {
             // const newUser = {id:this.users.length + 1, ...user};
             // this.users.push(newUser);
 
-            const existingUser = await this.prisma.user.findUnique({where: {email:user.email, OR: [{name:user.name}]}});
+            const existingUser = await this.prisma.user.findUnique({where: {email:user.email, OR: [{mobile:user.mobile}]}});
 
             if(existingUser){
                 throw new BadRequestException(errorResponse(400, 'User already exists'));
