@@ -1,0 +1,10 @@
+.classic*
+.devcontainer*
+.git*
+.vscode*
+.dockerignore
+*Dockerfile*
+*docker-compose*
+node_modules
+npm-debug.log
+dist

@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  app:
+    image: nest-app
+    build:
+      context: .
+      target: development
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/app}
+      READ_DATABASE_URL: ${READ_DATABASE_URL:-postgresql://postgres:postgres@localhost:5432/app}
+    ports:
+      - '3000:3000'
+      - '9229:9229'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/v1/health']
+      interval: 10s
+      timeout: 30s
+      retries: 5
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+  
+  postgres:
+    image: postgres:alpine
+    user: postgres
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - '5433:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready']
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  read_db:
+    image: postgres:alpine
+    user: postgres
+    container_name: read_db
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: read_db
+    volumes:
+      - read_db_data:/var/lib/postgresql/data
+    ports:
+      - '5434:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready']
+      interval: 10s
+      timeout: 10s
+      retries: 5
+volumes:
+  postgres-data:
+  read_db_data:
